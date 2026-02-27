@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/misbahul-alam/markdown-notes-api/internal/config"
+	"github.com/misbahul-alam/markdown-notes-api/internal/model"
 	"github.com/misbahul-alam/markdown-notes-api/internal/routes"
 )
 
@@ -17,7 +18,14 @@ func main() {
 	}
 	config.Load()
 	config.ConnectDatabase()
-
+	err = config.DB.AutoMigrate(
+		&model.User{},
+		&model.Note{},
+	)
+	if err != nil {
+		log.Fatalf("Error auto migrating users: %v", err)
+		return
+	}
 	r := gin.Default()
 	routes.SetupRoutes(r)
 
